@@ -63,8 +63,8 @@ class ModernFilterGUI(QMainWindow):
             'filter_order': 'Higher order = steeper rolloff but more computation.\nTypical values: 2-8 for most applications.',
             'critical_freq_lowpass': 'Corner frequency where the filter response is -3dB.\nFrequencies above this will be attenuated.',
             'critical_freq_highpass': 'Corner frequency where the filter response is -3dB.\nFrequencies below this will be attenuated.',
-            'center_freq': 'Center frequency of the pass/stop band.\nFor bandpass: frequencies around this will pass through.\nFor bandstop: frequencies around this will be blocked.',
-            'bandwidth': 'Total width of the frequency band.\nThe band extends ±(width/2) around the center frequency.',
+            'freq_low': 'Lower cutoff frequency of the pass/stop band.',
+            'freq_high': 'Upper cutoff frequency of the pass/stop band.',
             'language': 'Programming language for the generated filter code.',
             'class_name': 'Name of the generated filter class.',
             'file_name': 'Output filename (extension will be added automatically).',
@@ -476,47 +476,47 @@ class ModernFilterGUI(QMainWindow):
         filter_layout.addLayout(order_layout, row, 1)
         row += 1
 
-        # Critical/Center Frequency
-        self.freq_label = QLabel("Cutoff Frequency (Hz)")
-        filter_layout.addWidget(self.freq_label, row, 0, Qt.AlignTop)
-        freq_layout = QHBoxLayout()
-        freq_layout.setSpacing(8)
+        # Critical/Low Cutoff Frequency
+        self.freq1_label = QLabel("Cutoff Frequency (Hz)")
+        filter_layout.addWidget(self.freq1_label, row, 0, Qt.AlignTop)
+        freq1_layout = QHBoxLayout()
+        freq1_layout.setSpacing(8)
 
-        self.critical_freq = QDoubleSpinBox()
-        self.critical_freq.setRange(0.001, 50000)
-        self.critical_freq.setValue(50.0)
-        self.critical_freq.setDecimals(3)
-        freq_layout.addWidget(self.critical_freq)
+        self.freq1_input = QDoubleSpinBox()
+        self.freq1_input.setRange(0.001, 50000)
+        self.freq1_input.setValue(50.0)
+        self.freq1_input.setDecimals(3)
+        freq1_layout.addWidget(self.freq1_input)
 
-        self.freq_info = InfoButton(self.tooltips['critical_freq_lowpass'])
-        freq_layout.addWidget(self.freq_info, 0, Qt.AlignVCenter)
-        freq_layout.addStretch()
+        self.freq1_info = InfoButton(self.tooltips['critical_freq_lowpass'])
+        freq1_layout.addWidget(self.freq1_info, 0, Qt.AlignVCenter)
+        freq1_layout.addStretch()
 
-        filter_layout.addLayout(freq_layout, row, 1)
+        filter_layout.addLayout(freq1_layout, row, 1)
         row += 1
 
-        # Bandwidth (for bandpass/bandstop)
-        self.bandwidth_label = QLabel("Bandwidth (Hz)")
-        filter_layout.addWidget(self.bandwidth_label, row, 0, Qt.AlignTop)
-        bandwidth_layout = QHBoxLayout()
-        bandwidth_layout.setSpacing(8)
+        # High Cutoff Frequency (for bandpass/bandstop)
+        self.freq2_label = QLabel("High Cutoff Freq (Hz)")
+        filter_layout.addWidget(self.freq2_label, row, 0, Qt.AlignTop)
+        freq2_layout = QHBoxLayout()
+        freq2_layout.setSpacing(8)
 
-        self.bandwidth = QDoubleSpinBox()
-        self.bandwidth.setRange(0.001, 50000)
-        self.bandwidth.setValue(4.0)
-        self.bandwidth.setDecimals(3)
-        bandwidth_layout.addWidget(self.bandwidth)
+        self.freq2_input = QDoubleSpinBox()
+        self.freq2_input.setRange(0.001, 50000)
+        self.freq2_input.setValue(100.0)
+        self.freq2_input.setDecimals(3)
+        freq2_layout.addWidget(self.freq2_input)
 
-        self.bandwidth_info = InfoButton(self.tooltips['bandwidth'])
-        bandwidth_layout.addWidget(self.bandwidth_info, 0, Qt.AlignVCenter)
-        bandwidth_layout.addStretch()
+        self.freq2_info = InfoButton(self.tooltips['freq_high'])
+        freq2_layout.addWidget(self.freq2_info, 0, Qt.AlignVCenter)
+        freq2_layout.addStretch()
 
-        filter_layout.addLayout(bandwidth_layout, row, 1)
+        filter_layout.addLayout(freq2_layout, row, 1)
 
-        # Initially hide bandwidth controls
-        self.bandwidth_label.hide()
-        self.bandwidth.hide()
-        self.bandwidth_info.hide()
+        # Initially hide freq2 controls
+        self.freq2_label.hide()
+        self.freq2_input.hide()
+        self.freq2_info.hide()
 
         return filter_group
 
@@ -622,22 +622,22 @@ class ModernFilterGUI(QMainWindow):
 
         # Update frequency label and tooltip based on filter type
         if filter_type in ['bandpass', 'bandstop']:
-            self.freq_label.setText("Center Frequency (Hz)")
-            self.freq_info.setToolTip(self.tooltips['center_freq'])
-            self.bandwidth_label.show()
-            self.bandwidth.show()
-            self.bandwidth_info.show()
+            self.freq1_label.setText("Low Cutoff Freq (Hz)")
+            self.freq1_info.setToolTip(self.tooltips['freq_low'])
+            self.freq2_label.show()
+            self.freq2_input.show()
+            self.freq2_info.show()
         else:
             if filter_type == 'lowpass':
-                self.freq_label.setText("Cutoff Frequency (Hz)")
-                self.freq_info.setToolTip(self.tooltips['critical_freq_lowpass'])
+                self.freq1_label.setText("Cutoff Frequency (Hz)")
+                self.freq1_info.setToolTip(self.tooltips['critical_freq_lowpass'])
             else:  # highpass
-                self.freq_label.setText("Cutoff Frequency (Hz)")
-                self.freq_info.setToolTip(self.tooltips['critical_freq_highpass'])
+                self.freq1_label.setText("Cutoff Frequency (Hz)")
+                self.freq1_info.setToolTip(self.tooltips['critical_freq_highpass'])
 
-            self.bandwidth_label.hide()
-            self.bandwidth.hide()
-            self.bandwidth_info.hide()
+            self.freq2_label.hide()
+            self.freq2_input.hide()
+            self.freq2_info.hide()
 
     def get_file_extension(self):
         """Get file extension based on selected language"""
@@ -657,11 +657,12 @@ class ModernFilterGUI(QMainWindow):
         cmd_parts = [sys.executable, script_path,
             '--type', self.filter_type.currentText(),
             '--rate', str(self.sampling_rate.value()),
-            '--order', str(self.filter_order.value()),
-            '--freq', str(self.critical_freq.value())]
+            '--order', str(self.filter_order.value())]
 
         if self.filter_type.currentText() in ['bandpass', 'bandstop']:
-            cmd_parts += ['--width', str(self.bandwidth.value())]
+            cmd_parts += ['--freqs', str(self.freq1_input.value()), str(self.freq2_input.value())]
+        else:
+            cmd_parts += ['--freqs', str(self.freq1_input.value())]
 
         if self.class_name.text().strip():
             cmd_parts += ['--name', self.class_name.text().strip()]
@@ -686,6 +687,24 @@ class ModernFilterGUI(QMainWindow):
 
     def generate_filter(self):
         """Generate the filter"""
+        # Validate inputs against Nyquist
+        nyquist = self.sampling_rate.value() / 2.0
+        filter_type = self.filter_type.currentText()
+        f1 = self.freq1_input.value()
+        f2 = self.freq2_input.value()
+
+        if f1 >= nyquist:
+            QMessageBox.critical(self, "Invalid Frequency", f"Cutoff frequency ({f1} Hz) must be strictly less than the Nyquist frequency ({nyquist:.1f} Hz).")
+            return
+
+        if filter_type in ['bandpass', 'bandstop']:
+            if f2 >= nyquist:
+                QMessageBox.critical(self, "Invalid Frequency", f"High cutoff frequency ({f2} Hz) must be strictly less than the Nyquist frequency ({nyquist:.1f} Hz).")
+                return
+            if f1 >= f2:
+                QMessageBox.critical(self, "Invalid Range", f"Low cutoff frequency ({f1} Hz) must be strictly less than High cutoff frequency ({f2} Hz).")
+                return
+
         self.generate_button.setEnabled(False)
         self.generate_button.setText("Generating...")
         self.status_text.clear()

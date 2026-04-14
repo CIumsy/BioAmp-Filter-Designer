@@ -29,8 +29,8 @@ For lowpass and highpass filters, the critical frequency specifies the corner of
 the idealized filter curve in Hz. The filter has a rolloff, so the blocking
 strength increases as frequencies move beyond this corner into the blocked range.
 
-For bandpass and bandstop filters, the critical frequency is the center of the
-band, and the width is the total width of the band.
+For bandpass and bandstop filters, two frequencies are provided to specify the 
+lower and upper edges of the filter band.
 
 References:
 https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.butter.html
@@ -372,9 +372,7 @@ if __name__ == "__main__":
 
     parser.add_argument('--order', default=4, type=int, help = 'Filter order (default 4).')
 
-    parser.add_argument('--freq', default=1.0, type=float, help = 'Critical frequency (default 1.0 Hz).')
-
-    parser.add_argument('--width', default=1.0, type=float, help = 'Bandwidth (for bandpass or bandstop) (default 1.0 Hz).')
+    parser.add_argument('--freqs', nargs='+', type=float, default=[1.0], help='Filter frequencies (1 value for low/highpass, 2 values for bandpass/bandstop).')
 
     parser.add_argument('--name', type=str, help = 'Name of filter class/function.')
 
@@ -388,20 +386,40 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
+    if args.freqs is None or len(args.freqs) == 0:
+        parser.error("At least one frequency must be provided.")
+
+    nyquist = args.rate / 2.0
+    for f in args.freqs:
+        if f <= 0 or f >= nyquist:
+            sys.exit(f"Error: Frequency {f} out of bounds. Must be between 0 and Nyquist frequency ({nyquist:.1f} Hz).")
+
     if args.type == 'lowpass':
-        freqs = args.freq
+        if len(args.freqs) != 1:
+            sys.exit("Error: lowpass requires exactly 1 frequency.")
+        freqs = args.freqs[0]
         funcname = 'LowpassFilter' if args.name is None else args.name
 
     elif args.type == 'highpass':
-        freqs = args.freq
+        if len(args.freqs) != 1:
+            sys.exit("Error: highpass requires exactly 1 frequency.")
+        freqs = args.freqs[0]
         funcname = 'HighpassFilter' if args.name is None else args.name
 
     elif args.type == 'bandpass':
-        freqs = [args.freq - 0.5*args.width, args.freq + 0.5*args.width]
+        if len(args.freqs) != 2:
+            sys.exit("Error: bandpass requires exactly 2 frequencies.")
+        if args.freqs[0] >= args.freqs[1]:
+            sys.exit(f"Error: For bandpass, frequency 1 ({args.freqs[0]}) must be less than frequency 2 ({args.freqs[1]}).")
+        freqs = args.freqs
         funcname = 'BandpassFilter' if args.name is None else args.name
 
     elif args.type == 'bandstop':
-        freqs = [args.freq - 0.5*args.width, args.freq + 0.5*args.width]
+        if len(args.freqs) != 2:
+            sys.exit("Error: bandstop requires exactly 2 frequencies.")
+        if args.freqs[0] >= args.freqs[1]:
+            sys.exit(f"Error: For bandstop, frequency 1 ({args.freqs[0]}) must be less than frequency 2 ({args.freqs[1]}).")
+        freqs = args.freqs
         funcname = 'BandstopFilter' if args.name is None else args.name
 
     # Generate a Butterworth filter as a cascaded series of second-order digital
