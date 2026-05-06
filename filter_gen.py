@@ -391,6 +391,9 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
+    if args.rate <= 0:
+        parser.error("Sampling frequency must be greater than 0.")
+
     if args.freqs is None or len(args.freqs) == 0:
         parser.error("At least one frequency must be provided.")
 
