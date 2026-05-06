@@ -193,8 +193,8 @@ def emit_javascript_filter(stream, name, sos, filter_type, fs, freqs, order):
     stream.write(f"// {type_print_form[filter_type]} Butterworth IIR digital filter\n")
     stream.write(f"// Sampling rate: {fs} Hz, frequency: {freqs} Hz\n")
     stream.write(f"// Filter is order {order}, implemented as second-order sections (biquads)\n")
-    stream.write("# Reference: https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.butter.html\n")
-    stream.write("# Reference: https://github.com/upsidedownlabs/BioAmp-Filter-Designer\n\n")
+    stream.write("// Reference: https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.butter.html\n")
+    stream.write("// Reference: https://github.com/upsidedownlabs/BioAmp-Filter-Designer\n\n")
 
     stream.write(f"class {name} {{\n")
     stream.write("    constructor() {\n")
@@ -249,8 +249,8 @@ def emit_typescript_filter(stream, name, sos, filter_type, fs, freqs, order):
     stream.write(f"// {type_print_form[filter_type]} Butterworth IIR digital filter\n")
     stream.write(f"// Sampling rate: {fs} Hz, frequency: {freqs} Hz\n")
     stream.write(f"// Filter is order {order}, implemented as second-order sections (biquads)\n")
-    stream.write("# Reference: https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.butter.html\n")
-    stream.write("# Reference: https://github.com/upsidedownlabs/BioAmp-Filter-Designer\n\n")
+    stream.write("// Reference: https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.butter.html\n")
+    stream.write("// Reference: https://github.com/upsidedownlabs/BioAmp-Filter-Designer\n\n")
 
     stream.write(f"class {name} {{\n")
 
@@ -303,8 +303,8 @@ def emit_java_filter(stream, name, sos, filter_type, fs, freqs, order):
     stream.write(f"// {type_print_form[filter_type]} Butterworth IIR digital filter\n")
     stream.write(f"// Sampling rate: {fs} Hz, frequency: {freqs} Hz\n")
     stream.write(f"// Filter is order {order}, implemented as second-order sections (biquads)\n")
-    stream.write("# Reference: https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.butter.html\n")
-    stream.write("# Reference: https://github.com/upsidedownlabs/BioAmp-Filter-Designer\n\n")
+    stream.write("// Reference: https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.butter.html\n")
+    stream.write("// Reference: https://github.com/upsidedownlabs/BioAmp-Filter-Designer\n\n")
 
     stream.write(f"public class {name} {{\n")
 
