@@ -154,7 +154,7 @@ The filter is generated as a class, so you can create multiple objects from it, 
 
 ### 7. Enter the Output Filename
 
-Enter the name of the file the filter is saved to. The extension is added automatically based on the language you selected (`.py`, `.js`, `.ts`, `.cpp` or `.java`). The file is saved in the folder you launched the app from, which is the project folder if you followed the steps above.
+Enter a base filename without an extension. The GUI adds the extension based on the language you selected (`.py`, `.js`, `.ts`, `.cpp` or `.java`). If you enter a filename with an extension, the GUI preserves that extension. The file is saved in the folder you launched the app from, which is the project folder if you followed the steps above.
 
 ![Output Filename field outlined in red containing EEGFilter](media/enter-filename.png)
 
